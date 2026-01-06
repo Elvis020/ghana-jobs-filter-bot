@@ -1,0 +1,13 @@
+# Core dependencies
+python-telegram-bot==20.8
+python-dotenv==1.0.0
+
+# Web scraping (Phase 2)
+httpx==0.26.0
+beautifulsoup4==4.12.3
+
+# AI analysis (Phase 2)
+anthropic==0.40.0
+
+# Future: Browser automation for JS-heavy sites (Phase 3)
+# playwright==1.41.0

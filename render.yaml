@@ -1,0 +1,21 @@
+services:
+  - type: worker
+    name: ghana-jobs-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m bot.main
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CACHE_TTL_HOURS
+        value: 24
+      - key: CACHE_DB_PATH
+        value: /opt/render/project/src/job_cache.db
+    disk:
+      name: cache-disk
+      mountPath: /opt/render/project/src
+      sizeGB: 1

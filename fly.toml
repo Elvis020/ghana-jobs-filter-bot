@@ -1,0 +1,22 @@
+# fly.toml - Fly.io configuration for Ghana Jobs Bot
+
+app = "ghana-jobs-bot"
+primary_region = "iad"  # Washington DC - change to your preferred region
+
+[build]
+
+[env]
+  LOG_LEVEL = "INFO"
+  CACHE_TTL_HOURS = "24"
+  CACHE_DB_PATH = "/data/job_cache.db"
+
+[mounts]
+  source = "job_cache_data"
+  destination = "/data"
+
+# No [http_service] section needed for Telegram bots (they don't serve HTTP)
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
