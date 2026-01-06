@@ -5,7 +5,7 @@ from telegram import Update, BotCommand
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 from config.settings import TELEGRAM_BOT_TOKEN, LOG_LEVEL
-from bot.handlers import start_command, help_command, check_command, clearcache_command, handle_message
+from bot.handlers import start_command, help_command, check_command, clearcache_command
 
 # Configure logging
 logging.basicConfig(
@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 async def post_init(application: Application) -> None:
     """Set bot commands after initialization."""
     commands = [
-        BotCommand("start", "Start the bot and see welcome message"),
-        BotCommand("help", "Show help and available commands"),
-        BotCommand("check", "Manually check a job URL"),
+        BotCommand("start", "Show welcome message and usage guide"),
+        BotCommand("help", "Show detailed help and examples"),
+        BotCommand("check", "Analyze a job URL: /check <url>"),
         BotCommand("clearcache", "Clear all cached results"),
     ]
     await application.bot.set_my_commands(commands)
@@ -40,11 +40,8 @@ def main() -> None:
     application.add_handler(CommandHandler("check", check_command))
     application.add_handler(CommandHandler("clearcache", clearcache_command))
 
-    # Register message handler for all text messages
-    # This will detect job links automatically
-    application.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message)
-    )
+    # Note: Automatic job link detection is disabled
+    # Users must use /check <url> command to analyze jobs
 
     # Start the bot
     logger.info("Bot is running... Press Ctrl+C to stop")

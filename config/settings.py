@@ -40,6 +40,11 @@ JOB_DOMAINS = [
     'apply.workable.com',
     'job-boards.greenhouse.io',
     'boards.greenhouse.io',
-    '/jobs/',  # Generic pattern for careers.*.com/jobs/ URLs
+    '/jobs/',  # Generic pattern for *.com/jobs/ URLs
+    '/job/',   # Generic pattern for *.com/job/ URLs (singular)
     '/careers/',  # Generic pattern for *.com/careers/ URLs
+    '/career/',   # Generic pattern for *.com/career/ URLs (singular)
+    'careers.',   # Generic pattern for careers.*.com domains
+    'jobs.',      # Generic pattern for jobs.*.com domains
+    'apply.',     # Generic pattern for apply.*.com domains
 ]
