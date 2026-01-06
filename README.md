@@ -1,23 +1,28 @@
 # Ghana Jobs Bot
 
-A Telegram bot that monitors group messages for job posting links and indicates whether the job is accessible to someone in Ghana (worldwide remote or Ghana-based).
+A Telegram bot that analyzes job postings to determine if they're accessible to Ghana-based job seekers. Use `/check <url>` to instantly analyze any job posting for location requirements and visa sponsorship.
 
 ## Features
 
-- 🔍 Automatically detects job links in group messages
-- ⚡ Instant analysis using rule-based keyword matching
-- 🎯 Reacts with emojis:
+- 🎯 **Manual command-based analysis** - Explicit control with `/check <url>`
+- ⚡ **Instant analysis** - Rule-based keyword matching + AI-powered analysis
+- 🌍 **Visa sponsorship detection** - Identifies jobs offering relocation support
+- 💾 **Smart caching** - 24-hour cache for faster repeat lookups
+- 🤖 **AI-powered** - Claude AI integration for intelligent analysis
+- 📊 **Clear verdicts:**
   - ✅ Helpful (worldwide remote or Ghana-based)
+  - 🌍 Visa sponsorship (offers relocation/visa support)
   - ❌ Not helpful (location-restricted)
   - ❓ Unclear (cannot determine)
-- 🌐 Supports major job platforms (LinkedIn, Indeed, Greenhouse, Lever, RemoteOK, etc.)
+- 🌐 **Supports major job platforms** (LinkedIn, Indeed, Greenhouse, Lever, RemoteOK, etc.)
 
 ## Setup
 
 ### Prerequisites
 
-- Python 3.12 (recommended for compatibility with python-telegram-bot)
+- Python 3.12 (required for compatibility with python-telegram-bot)
 - A Telegram bot token (from @BotFather)
+- Anthropic API key (optional, for AI analysis)
 
 ### Installation
 
@@ -38,120 +43,156 @@ A Telegram bot that monitors group messages for job posting links and indicates 
    ```
 
 4. **Configure environment variables:**
+   Create a `.env` file with:
    ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and add your Telegram bot token:
-   ```
-   TELEGRAM_BOT_TOKEN=your_actual_bot_token_here
+   TELEGRAM_BOT_TOKEN=your_bot_token_from_botfather
+   ANTHROPIC_API_KEY=your_claude_api_key  # Optional but recommended
+   LOG_LEVEL=INFO
+   CACHE_TTL_HOURS=24
+   CACHE_DB_PATH=job_cache.db
    ```
 
 ### Running the Bot Locally
 
 ```bash
-python -m bot.main
+./venv/bin/python -m bot.main
 ```
 
 The bot will start polling for messages. Press `Ctrl+C` to stop.
 
-**Note:** Running locally means the bot only works while your computer is on. For 24/7 availability, see the Deployment section below.
+**Note:** Running locally means the bot only works while your computer is on. For 24/7 availability, deploy to Fly.io (see below).
 
 ## Usage
 
-### In Telegram
-
-1. Add the bot to your group
-2. Grant the bot permissions to read messages and react
-3. Post job links in the group
-4. The bot will automatically analyze and react to job postings
-
 ### Commands
 
-- `/start` - Welcome message with bot explanation
-- `/help` - Show help information
-- `/check <url>` - Manually check a job URL
+The bot uses **manual commands only** - no automatic detection.
+
+**Main command:**
+```
+/check <job_url>
+```
+
+**Example:**
+```
+/check https://careers.company.com/job/12345
+```
+
+**Other commands:**
+- `/start` - Show welcome message and usage guide
+- `/help` - Show detailed help with examples
+- `/clearcache` - Clear all cached results
+
+### In Telegram Groups
+
+When someone shares a job posting:
+```
+User: "Check this out!"
+      https://careers.stripe.com/jobs/123
+
+You:  /check https://careers.stripe.com/jobs/123
+
+Bot:  ✅ Helpful
+      Job is accessible: 'remote worldwide'
+```
 
 ## How It Works
 
-1. **Link Detection**: Bot monitors messages for URLs from known job platforms
-2. **Keyword Analysis**: Analyzes message text for location indicators:
+1. **Command Invocation**: User runs `/check <url>`
+2. **Web Scraping**: Bot fetches and extracts job posting content
+3. **Rule-Based Analysis**: Checks for keywords:
+   - 🌍 "visa sponsorship", "H-1B", "relocation support"
    - ✅ "worldwide remote", "global remote", "Ghana", "work from anywhere"
    - ❌ "US only", "EU only", "on-site only", "must be located in [country]"
-   - ❓ Ambiguous language or insufficient information
-3. **Instant Feedback**: Reacts to the message with an appropriate emoji
+4. **AI Analysis**: If unclear, Claude AI reads the full posting for smart analysis
+5. **Cached Results**: Stores results for 24 hours for instant repeat lookups
+6. **Response**: Bot replies with verdict and detailed explanation
 
-## Deployment (24/7 Hosting)
+## Deployment (24/7 on Fly.io)
 
-To keep your bot running continuously, deploy it to a hosting platform:
+Deploy your bot to Fly.io for free 24/7 hosting.
 
-### Option 1: Railway (Recommended)
+### Quick Start
 
-1. **Push to GitHub:**
+1. **Install Fly CLI:**
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin <your-github-repo-url>
-   git push -u origin main
+   # macOS
+   brew install flyctl
+
+   # Linux
+   curl -L https://fly.io/install.sh | sh
+
+   # Windows
+   iwr https://fly.io/install.ps1 -useb | iex
    ```
 
-2. **Deploy on Railway:**
-   - Go to [railway.app](https://railway.app) and sign up
-   - Click "New Project" → "Deploy from GitHub repo"
-   - Select your repository
-   - Add environment variable: `TELEGRAM_BOT_TOKEN=your_token_here`
-   - Railway will auto-detect Python and use the `Procfile` to run the bot
+2. **Login and create app:**
+   ```bash
+   flyctl auth login
+   flyctl apps create ghana-jobs-bot  # Or choose your own name
+   ```
 
-3. **Done!** Your bot is now running 24/7.
+3. **Create persistent volume:**
+   ```bash
+   flyctl volumes create job_cache_data --region iad --size 1
+   ```
 
-**Cost:** Free tier includes 500 hours/month (~$5/month after)
+   **Regions:** `iad` (USA East), `lhr` (London), `sin` (Singapore), `syd` (Sydney)
 
-### Option 2: Render
+4. **Set secrets:**
+   ```bash
+   flyctl secrets set TELEGRAM_BOT_TOKEN="your_bot_token"
+   flyctl secrets set ANTHROPIC_API_KEY="your_claude_key"  # Optional
+   ```
 
-1. **Push to GitHub** (same as above)
+5. **Deploy:**
+   ```bash
+   flyctl deploy
+   ```
 
-2. **Deploy on Render:**
-   - Go to [render.com](https://render.com) and sign up
-   - Click "New" → "Background Worker"
-   - Connect your GitHub repo
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python -m bot.main`
-   - Add environment variable: `TELEGRAM_BOT_TOKEN`
+6. **Monitor:**
+   ```bash
+   flyctl status      # Check app status
+   flyctl logs        # View live logs
+   flyctl dashboard   # Open web dashboard
+   ```
 
-**Cost:** Free tier available (with limitations)
+### Updating Your Bot
 
-### Option 3: VPS (DigitalOcean, Linode, etc.)
-
-For more control, deploy to a VPS:
-
+When you make changes:
 ```bash
-# SSH into your server
-ssh user@your-server-ip
-
-# Clone repo and setup
-git clone <your-repo>
-cd tbot-for-job-analysis
-python3.12 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Create .env file with your token
-nano .env
-
-# Run with a process manager (e.g., systemd or screen)
-screen -S telegram-bot
-python -m bot.main
-# Press Ctrl+A, then D to detach
+git add .
+git commit -m "Your changes"
+flyctl deploy
 ```
 
-**Cost:** ~$4-5/month minimum
+### Cost
 
-### Environment Variables for Deployment
+**Free tier includes:**
+- 3 shared-cpu VMs (256MB RAM each)
+- 3GB persistent storage
+- 160GB bandwidth/month
 
-Make sure to set these in your hosting platform:
-- `TELEGRAM_BOT_TOKEN` (required)
-- `LOG_LEVEL=INFO` (optional)
-- `CACHE_TTL_HOURS=24` (optional)
+**Your bot:** $0/month (within free tier)
+
+### Troubleshooting
+
+**Bot not starting?**
+```bash
+flyctl logs  # Check for errors
+```
+
+**Need to restart?**
+```bash
+flyctl apps restart
+```
+
+**Database issues?**
+```bash
+flyctl volumes list  # Verify volume is mounted
+```
+
+See `DEPLOYMENT.md` for the complete deployment guide with detailed troubleshooting.
 
 ## Project Structure
 
@@ -159,34 +200,42 @@ Make sure to set these in your hosting platform:
 tbot-for-job-analysis/
 ├── bot/
 │   ├── __init__.py
-│   ├── main.py          # Entry point, bot setup
-│   ├── handlers.py      # Message and command handlers
-│   └── analyzer.py      # Job analysis logic
+│   ├── main.py            # Entry point, bot setup
+│   ├── handlers.py        # Command handlers (/start, /check, etc.)
+│   ├── analyzer.py        # Job analysis logic (rule-based)
+│   ├── claude_analyzer.py # AI-powered analysis
+│   ├── scraper.py         # Web scraping for job postings
+│   └── cache.py           # SQLite caching layer
 ├── config/
 │   ├── __init__.py
-│   └── settings.py      # Environment configuration
+│   └── settings.py        # Environment configuration
 ├── tests/
 │   └── __init__.py
-├── requirements.txt
-├── .env.example
+├── requirements.txt       # Python dependencies
+├── runtime.txt           # Python version for deployment
+├── Dockerfile            # Docker configuration for Fly.io
+├── fly.toml              # Fly.io deployment config
 ├── .gitignore
-└── README.md
+├── DEPLOYMENT.md         # Detailed deployment guide
+├── USAGE_GUIDE.md        # Complete usage documentation
+└── README.md             # This file
 ```
 
 ## Development Status
 
-✅ **Phase 1: MVP (Complete)**
-- Basic message handler detecting job links
-- Rule-based analysis using keywords
-- Emoji reactions working
+✅ **Core Features (Complete)**
+- Manual command-based operation (`/check <url>`)
+- Rule-based keyword analysis
+- Web scraping for job content extraction
+- SQLite caching layer (24-hour TTL)
+- Claude AI integration for intelligent analysis
+- Visa sponsorship detection
+- Fly.io deployment ready
 
-🔜 **Phase 2: Scraping (Future)**
-- Web scraping for detailed job information
-- Caching layer with SQLite
-
-🔜 **Phase 3: Smart Analysis (Future)**
-- Claude API integration for ambiguous cases
-- Improved accuracy
+📋 **Current Version:** 1.0.0
+- Manual operation only (no automatic detection)
+- Smart caching for performance
+- AI-powered analysis for ambiguous cases
 
 ## Contributing
 
