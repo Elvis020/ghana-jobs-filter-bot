@@ -9,8 +9,8 @@ from bot.handlers import start_command, help_command, check_command, clearcache_
 
 # Configure logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=getattr(logging, LOG_LEVEL)
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=getattr(logging, LOG_LEVEL),
 )
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,9 @@ def main() -> None:
     logger.info("Starting Ghana Jobs Bot...")
 
     # Create the Application
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).post_init(post_init).build()
+    application = (
+        Application.builder().token(TELEGRAM_BOT_TOKEN).post_init(post_init).build()
+    )
 
     # Register command handlers
     application.add_handler(CommandHandler("start", start_command))
