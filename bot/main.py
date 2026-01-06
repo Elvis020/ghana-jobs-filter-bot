@@ -1,7 +1,7 @@
 """Main entry point for Ghana Jobs Bot."""
 
 import logging
-from telegram import Update
+from telegram import Update, BotCommand
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 from config.settings import TELEGRAM_BOT_TOKEN, LOG_LEVEL
@@ -15,12 +15,24 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def post_init(application: Application) -> None:
+    """Set bot commands after initialization."""
+    commands = [
+        BotCommand("start", "Start the bot and see welcome message"),
+        BotCommand("help", "Show help and available commands"),
+        BotCommand("check", "Manually check a job URL"),
+        BotCommand("clearcache", "Clear all cached results"),
+    ]
+    await application.bot.set_my_commands(commands)
+    logger.info("Bot commands set successfully")
+
+
 def main() -> None:
     """Start the bot."""
     logger.info("Starting Ghana Jobs Bot...")
 
     # Create the Application
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).post_init(post_init).build()
 
     # Register command handlers
     application.add_handler(CommandHandler("start", start_command))
