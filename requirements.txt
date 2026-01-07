@@ -9,5 +9,13 @@ beautifulsoup4==4.12.3
 # AI analysis (Phase 2)
 anthropic==0.40.0
 
-# Future: Browser automation for JS-heavy sites (Phase 3)
+# Phase 3: Browser automation for protected sites
 # playwright==1.41.0
+#
+# Needed for sites with:
+# - DataDome anti-bot protection (e.g., Wellfound.com)
+# - JavaScript rendering requirements
+# - Cloudflare challenges
+#
+# Current behavior: Sites with strong anti-bot return "unclear" (graceful degradation)
+# Phase 3 goal: Use Playwright to bypass protection and scrape these sites successfully
