@@ -242,7 +242,7 @@ flyctl deploy
 class JobCache:
     def get(self, url: str) -> Optional[CachedResult]:
         """Check cache for 24-hour results"""
-        
+
     def set(self, url: str, verdict: str, reason: str):
         """Store analysis for reuse"""
 ```
@@ -362,7 +362,7 @@ async def analyze(self, text: str, url: str, scraped_data: Optional[dict]):
     verdict, reason = self._rule_based_analyze(text, url)
     if verdict != "unclear":
         return verdict, reason
-    
+
     # 2. Try scraped content
     if scraped_data and scraped_data.get("scrape_success"):
         verdict, reason = self._rule_based_analyze(
@@ -370,12 +370,12 @@ async def analyze(self, text: str, url: str, scraped_data: Optional[dict]):
         )
         if verdict != "unclear":
             return verdict, f"{reason} (from scraped content)"
-    
+
     # 3. Fall back to Claude AI
     if self.claude_analyzer.is_available():
         verdict, reason = await self.claude_analyzer.analyze(full_content)
         return verdict, f"{reason} (AI analysis)"
-    
+
     return "unclear", "Cannot determine requirements"
 ```
 
@@ -390,13 +390,6 @@ async def analyze(self, text: str, url: str, scraped_data: Optional[dict]):
 
 The bot is live! Add it to your Telegram:
 **@ghanajobs_filter_bot**
-
-Or deploy your own:
-```bash
-git clone https://github.com/your-username/ghana-jobs-bot
-cd ghana-jobs-bot
-# Follow DEPLOYMENT.md
-```
 
 ## Future Improvements
 
